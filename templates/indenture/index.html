@@ -1,0 +1,107 @@
+{% extends "analytics/base.html" %}
+{% load static %}
+
+{% block title %}Indenture Term Extractor — {{ app_brand_short }}{% endblock %}
+{% block hero_title %}Indenture Term Extractor{% endblock %}
+{% block hero_subtitle %}Pull defined terms out of credit agreements, CLO indentures, and ISDA documents.{% endblock %}
+
+{% block content %}
+<div class="indenture-app">
+  <link rel="stylesheet" href="{% static 'indenture/style.css' %}">
+
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="msg msg-{{ message.tags|default:'info' }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <section class="card upload-card">
+    <h2>Run extraction</h2>
+    <form method="post"
+          action="{% url 'indenture:extract' %}"
+          enctype="multipart/form-data"
+          class="extract-form"
+          id="extract-form">
+      {% csrf_token %}
+
+      <div class="field">
+        <label for="file">Document (PDF or DOCX)</label>
+        <input type="file" id="file" name="file"
+               accept=".pdf,.docx" required>
+      </div>
+
+      <div class="field">
+        <label for="strategy">Strategy</label>
+        <select id="strategy" name="strategy">
+          {% for s in strategies %}
+            <option value="{{ s }}"
+                    {% if s == prefs.default_strategy %}selected{% endif %}>
+              {{ s }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <fieldset class="field mode-field">
+        <legend>Mode</legend>
+        {% for m in modes %}
+          <label class="radio">
+            <input type="radio" name="mode" value="{{ m }}"
+                   {% if m == prefs.default_mode %}checked{% endif %}
+                   data-mode="{{ m }}">
+            {% if m == "auto" %}Auto-detect all defined terms{% else %}Use a saved preset list{% endif %}
+          </label>
+        {% endfor %}
+      </fieldset>
+
+      <div class="field preset-field" id="preset-field">
+        <label for="preset_set">Preset set</label>
+        <select id="preset_set" name="preset_set">
+          <option value="">— choose —</option>
+          {% for ps in preset_sets %}
+            <option value="{{ ps.set_id }}"
+                    {% if ps.set_id == prefs.default_preset_set_id %}selected{% endif %}>
+              {{ ps.name }} ({{ ps.terms|length }} terms)
+            </option>
+          {% endfor %}
+        </select>
+        {% if not preset_sets %}
+          <p class="hint">
+            No saved preset sets yet —
+            <a href="{% url 'indenture:presets_list' %}">create one</a>
+            before running in preset mode.
+          </p>
+        {% endif %}
+      </div>
+
+      <div class="field checkbox-field">
+        <label class="checkbox">
+          <input type="checkbox" name="prefer_first">
+          Prefer the first definition encountered (--prefer-first)
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary" id="submit-btn">
+          Extract terms
+        </button>
+        <span class="processing-note" id="processing-note" hidden>
+          Processing — this can take a while for large indentures.
+        </span>
+      </div>
+    </form>
+  </section>
+
+  <section class="card quicklinks">
+    <h3>Quick links</h3>
+    <ul>
+      <li><a href="{% url 'indenture:presets_list' %}">Manage preset sets</a></li>
+      <li><a href="{% url 'indenture:history' %}">Run history</a></li>
+    </ul>
+  </section>
+</div>
+
+<script src="{% static 'indenture/app.js' %}"></script>
+{% endblock %}

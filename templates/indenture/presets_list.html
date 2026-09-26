@@ -1,0 +1,69 @@
+{% extends "analytics/base.html" %}
+{% load static %}
+
+{% block title %}Preset sets — {{ app_brand_short }}{% endblock %}
+{% block hero_title %}Preset sets{% endblock %}
+{% block hero_subtitle %}Save term lists you reuse across indentures.{% endblock %}
+
+{% block content %}
+<div class="indenture-app">
+  <link rel="stylesheet" href="{% static 'indenture/style.css' %}">
+
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="msg msg-{{ message.tags|default:'info' }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p class="actions">
+    <a class="btn ghost" href="{% url 'indenture:index' %}">Back to upload</a>
+    <a class="btn ghost" href="{% url 'indenture:history' %}">Run history</a>
+  </p>
+
+  <section class="card">
+    <h2>Your preset sets</h2>
+    {% if preset_sets %}
+      <table class="presets-table">
+        <thead>
+          <tr><th>Name</th><th>Terms</th><th>Updated</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for ps in preset_sets %}
+            <tr>
+              <td>{{ ps.name }}</td>
+              <td>{{ ps.terms|length }}</td>
+              <td>{{ ps.updated_at }}</td>
+              <td>
+                <a href="{% url 'indenture:presets_detail' set_id=ps.set_id %}">Edit</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty">No preset sets yet.</p>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Create new preset set</h2>
+    <form method="post" action="{% url 'indenture:presets_list' %}">
+      {% csrf_token %}
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required maxlength="80">
+      </div>
+      <div class="field">
+        <label for="terms">Terms (one per line, 20–30 is typical)</label>
+        <textarea id="terms" name="terms" rows="8"
+                  placeholder="Interest Coverage Ratio&#10;Applicable Margin&#10;Adjusted Term SOFR"></textarea>
+      </div>
+      <p class="actions">
+        <button type="submit" class="btn primary">Save preset set</button>
+      </p>
+    </form>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,362 @@
+/*
+ * Scoped styles for the indenture extractor mini-app.
+ * Every selector is prefixed with .indenture-app per the authoring
+ * contract §3.1 (mechanical scoping, no exceptions).
+ *
+ * v1.1.0: rewritten to inherit the host site's design tokens
+ * (analytics_app/static/css/styles.css :root). Plugin apps that live
+ * inside this site should reference its variables rather than declare
+ * their own — automatic brand consistency and one source of truth.
+ */
+
+.indenture-app {
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+/* ─── Card containers (matches site .card pattern) ────────────────────── */
+
+.indenture-app .card {
+  background: var(--bg-body);
+  border: 1px solid var(--border-color);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg) var(--space-xl);
+  margin: 0 0 var(--space-lg) 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.indenture-app .card.danger {
+  border-top-color: #ba2121;
+  border-left: 3px solid #ba2121;
+  background: #fdf3f3;
+}
+
+/* ─── Typography (inherits site serif for headings, sans for body) ────── */
+
+.indenture-app h2 {
+  font-family: var(--font-serif);
+  color: var(--primary);
+  margin: 0 0 var(--space-md) 0;
+  font-size: 1.35rem;
+}
+
+.indenture-app h3 {
+  font-family: var(--font-serif);
+  color: var(--primary);
+  margin: 0 0 var(--space-sm) 0;
+  font-size: 1.1rem;
+}
+
+/* ─── Form fields ─────────────────────────────────────────────────────── */
+
+.indenture-app .field {
+  margin: 0 0 var(--space-md) 0;
+}
+
+.indenture-app .field label,
+.indenture-app .field legend {
+  display: block;
+  font-weight: 600;
+  font-family: var(--font-serif);
+  color: var(--text-main);
+  margin-bottom: var(--space-xs);
+}
+
+.indenture-app .field input[type="text"],
+.indenture-app .field input[type="file"],
+.indenture-app .field select,
+.indenture-app .field textarea {
+  width: 100%;
+  max-width: 36rem;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  background: var(--bg-body);
+  color: var(--text-main);
+  transition: border-color var(--transition-fast);
+}
+
+.indenture-app .field input[type="text"]:focus,
+.indenture-app .field select:focus,
+.indenture-app .field textarea:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.indenture-app .field textarea {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  min-height: 10rem;
+}
+
+.indenture-app .mode-field {
+  border: none;
+  padding: 0;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.indenture-app .mode-field .radio {
+  display: inline-flex;
+  align-items: center;
+  margin-right: var(--space-lg);
+  font-weight: 400;
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+.indenture-app .mode-field .radio input[type="radio"] {
+  margin-right: var(--space-xs);
+}
+
+.indenture-app .checkbox-field .checkbox {
+  font-weight: 400;
+  font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.indenture-app .checkbox-field .checkbox input[type="checkbox"] {
+  margin-right: var(--space-xs);
+}
+
+.indenture-app .preset-field.hidden {
+  display: none;
+}
+
+.indenture-app .hint {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin: var(--space-sm) 0 0 0;
+}
+
+.indenture-app .hint a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.indenture-app .hint a:hover {
+  color: var(--accent);
+}
+
+/* ─── Buttons (matches site .btn / .btn-primary / .btn-ghost / .btn-danger) ── */
+
+.indenture-app .actions {
+  margin-top: var(--space-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.indenture-app .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  background: var(--bg-body);
+  color: var(--text-main);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.indenture-app .btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.indenture-app .btn.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.indenture-app .btn.primary:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.indenture-app .btn.ghost {
+  background: transparent;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.indenture-app .btn.ghost:hover {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.indenture-app .btn.danger {
+  background: #ba2121;
+  border-color: #ba2121;
+  color: #ffffff;
+}
+
+.indenture-app .btn.danger:hover {
+  background: #a31b1b;
+  border-color: #a31b1b;
+  color: #ffffff;
+}
+
+.indenture-app .processing-note {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* ─── Messages / alerts (matches site .message pattern) ───────────────── */
+
+.indenture-app .messages {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.indenture-app .msg {
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-sm);
+  font-size: 0.92rem;
+}
+
+.indenture-app .msg-error,
+.indenture-app .msg-warning {
+  background: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #c62828;
+}
+
+.indenture-app .msg-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #2e7d32;
+}
+
+.indenture-app .msg-info,
+.indenture-app .msg-debug {
+  background: var(--bg-light);
+  color: var(--text-main);
+  border-left: 4px solid var(--primary);
+}
+
+/* ─── Summary grid (run header on results pages) ──────────────────────── */
+
+.indenture-app .summary-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-xs) var(--space-md);
+  margin: 0;
+}
+
+.indenture-app .summary-grid dt {
+  font-weight: 600;
+  font-family: var(--font-serif);
+  color: var(--text-muted);
+}
+
+.indenture-app .summary-grid dd {
+  margin: 0;
+  color: var(--text-main);
+}
+
+/* ─── Tables (matches site .data-table pattern) ───────────────────────── */
+
+.indenture-app .results-scroll {
+  max-height: 70vh;
+  overflow: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.indenture-app .results-table,
+.indenture-app .history-table,
+.indenture-app .presets-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.indenture-app .results-table th,
+.indenture-app .history-table th,
+.indenture-app .presets-table th {
+  position: sticky;
+  top: 0;
+  background: var(--primary);
+  color: #ffffff;
+  text-align: left;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1;
+}
+
+.indenture-app .results-table td,
+.indenture-app .history-table td,
+.indenture-app .presets-table td {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid #f0f3f7;
+  vertical-align: top;
+}
+
+.indenture-app .results-table tbody tr:last-child td,
+.indenture-app .history-table tbody tr:last-child td,
+.indenture-app .presets-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.indenture-app .results-table tbody tr:hover,
+.indenture-app .history-table tbody tr:hover,
+.indenture-app .presets-table tbody tr:hover {
+  background: #faf8f2;
+}
+
+/* ─── Empty states ─────────────────────────────────────────────────────── */
+
+.indenture-app .empty {
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: var(--space-lg) 0;
+}
+
+/* ─── Quick links (sidebar-style list inside a card) ──────────────────── */
+
+.indenture-app .quicklinks ul {
+  margin: 0;
+  padding-left: var(--space-lg);
+  list-style: disc;
+}
+
+.indenture-app .quicklinks li {
+  margin-bottom: var(--space-xs);
+}
+
+.indenture-app .quicklinks a {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.indenture-app .quicklinks a:hover {
+  color: var(--accent);
+}

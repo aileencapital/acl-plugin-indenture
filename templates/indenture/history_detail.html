@@ -1,0 +1,63 @@
+{% extends "analytics/base.html" %}
+{% load static %}
+
+{% block title %}Run {{ run_id }} — {{ app_brand_short }}{% endblock %}
+{% block hero_title %}{{ run.filename }}{% endblock %}
+{% block hero_subtitle %}Extracted {{ run.terms_found }} term{{ run.terms_found|pluralize }} across {{ run.pages_processed }} page{{ run.pages_processed|pluralize }}.{% endblock %}
+
+{% block content %}
+<div class="indenture-app">
+  <link rel="stylesheet" href="{% static 'indenture/style.css' %}">
+
+  <section class="card summary">
+    <h2>Summary</h2>
+    <dl class="summary-grid">
+      <dt>File</dt><dd>{{ run.filename }}</dd>
+      <dt>Strategy</dt><dd>{{ run.strategy }}</dd>
+      <dt>Mode</dt><dd>{{ run.mode }}</dd>
+      <dt>Pages processed</dt><dd>{{ run.pages_processed }}</dd>
+      <dt>Terms found</dt><dd>{{ run.terms_found }}</dd>
+      <dt>Duration</dt><dd>{{ run.duration_ms }} ms</dd>
+      <dt>Processed at</dt><dd>{{ run.processed_at }}</dd>
+    </dl>
+
+    <p class="actions">
+      <a class="btn primary" href="{{ download_url }}">Download CSV</a>
+      <a class="btn ghost" href="{% url 'indenture:index' %}">Back to upload</a>
+      <a class="btn ghost" href="{% url 'indenture:history' %}">All runs</a>
+    </p>
+  </section>
+
+  <section class="card results-card">
+    <h2>Extracted terms</h2>
+    {% if run.results %}
+      <div class="results-scroll">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Term</th>
+              <th>Page</th>
+              <th>Definition</th>
+              <th>Confidence</th>
+              <th>Method</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in run.results %}
+              <tr>
+                <td>{{ row.term }}</td>
+                <td>{{ row.page }}</td>
+                <td>{{ row.definition }}</td>
+                <td>{{ row.confidence }}</td>
+                <td>{{ row.method }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty">No defined terms were found in this document.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

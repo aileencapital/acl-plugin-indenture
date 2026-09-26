@@ -1,0 +1,54 @@
+{% extends "analytics/base.html" %}
+{% load static %}
+
+{% block title %}Run history — {{ app_brand_short }}{% endblock %}
+{% block hero_title %}Run history{% endblock %}
+{% block hero_subtitle %}Recent extractions, most recent first.{% endblock %}
+
+{% block content %}
+<div class="indenture-app">
+  <link rel="stylesheet" href="{% static 'indenture/style.css' %}">
+
+  <p class="actions">
+    <a class="btn ghost" href="{% url 'indenture:index' %}">Back to upload</a>
+    <a class="btn ghost" href="{% url 'indenture:presets_list' %}">Preset sets</a>
+  </p>
+
+  <section class="card">
+    <h2>Past runs</h2>
+    {% if runs %}
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Filename</th>
+            <th>Processed at</th>
+            <th>Strategy</th>
+            <th>Mode</th>
+            <th>Terms</th>
+            <th>Pages</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in runs %}
+            <tr>
+              <td>{{ r.filename }}</td>
+              <td>{{ r.processed_at }}</td>
+              <td>{{ r.strategy }}</td>
+              <td>{{ r.mode }}</td>
+              <td>{{ r.terms_found }}</td>
+              <td>{{ r.pages_processed }}</td>
+              <td>
+                <a href="{% url 'indenture:history_detail' run_id=r.run_id %}">Open</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty">No runs yet. Upload a document on the
+        <a href="{% url 'indenture:index' %}">extractor page</a>.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

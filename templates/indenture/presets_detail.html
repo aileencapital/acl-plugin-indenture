@@ -1,0 +1,57 @@
+{% extends "analytics/base.html" %}
+{% load static %}
+
+{% block title %}{{ preset.name }} — {{ app_brand_short }}{% endblock %}
+{% block hero_title %}{{ preset.name }}{% endblock %}
+{% block hero_subtitle %}{{ preset.terms|length }} term{{ preset.terms|length|pluralize }}, last updated {{ preset.updated_at }}.{% endblock %}
+
+{% block content %}
+<div class="indenture-app">
+  <link rel="stylesheet" href="{% static 'indenture/style.css' %}">
+
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="msg msg-{{ message.tags|default:'info' }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p class="actions">
+    <a class="btn ghost" href="{% url 'indenture:presets_list' %}">All preset sets</a>
+    <a class="btn ghost" href="{% url 'indenture:index' %}">Back to upload</a>
+  </p>
+
+  <section class="card">
+    <h2>Edit preset set</h2>
+    <form method="post"
+          action="{% url 'indenture:presets_detail' set_id=preset.set_id %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save">
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name"
+               value="{{ preset.name }}" required maxlength="80">
+      </div>
+      <div class="field">
+        <label for="terms">Terms (one per line)</label>
+        <textarea id="terms" name="terms" rows="12">{{ terms_blob }}</textarea>
+      </div>
+      <p class="actions">
+        <button type="submit" class="btn primary">Save changes</button>
+      </p>
+    </form>
+  </section>
+
+  <section class="card danger">
+    <h3>Delete this preset set</h3>
+    <form method="post"
+          action="{% url 'indenture:presets_detail' set_id=preset.set_id %}"
+          onsubmit="return confirm('Delete preset set {{ preset.name|escapejs }}?');">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="delete">
+      <button type="submit" class="btn danger">Delete preset set</button>
+    </form>
+  </section>
+</div>
+{% endblock %}
