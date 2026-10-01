@@ -28,10 +28,13 @@ from django.views.decorators.http import (
 )
 
 from . import services
+from .core_logic import html_to_pdf
 
 logger = logging.getLogger(__name__)
 
 ALLOWED_EXTENSIONS = (".pdf", ".docx")
+# EDGAR exhibits are mostly HTML, sometimes text: rendered to PDF with PyMuPDF first
+CONVERT_TO_PDF = (".htm", ".html", ".txt")
 
 
 def _csv_filename(filename: str) -> str:
@@ -146,6 +149,116 @@ def extract(request: HttpRequest) -> HttpResponse:
     run_id = services.save_run(request.user, run_record)
     services.save_user_prefs(request.user, strategy, mode, preset_set_id)
 
+    return redirect("indenture:history_detail", run_id=run_id)
+
+
+@require_POST
+def extract_from_edgar(request: HttpRequest) -> HttpResponse:
+    """Run an extraction on a SEC EDGAR exhibit chosen on the site's EDGAR page.
+
+    POST fields (docs/plugin.md v1.7.0): cik, accession, filename; optional strategy,
+    mode, preset_set, prefer_first (default: the user's saved preferences). The bytes come
+    from analytics_app.edgar.get_exhibit on the server, are staged in a temporary folder
+    like an upload, and are discarded with it. No CIK goes into a message, log line or run.
+    """
+    from analytics_app.edgar import EdgarError, get_exhibit
+
+    cik = request.POST.get("cik", "").strip()
+    accession = request.POST.get("accession", "").strip()
+    filename = request.POST.get("filename", "").strip()
+    if not (cik and accession and filename):
+        messages.error(request, "Choose an exhibit on the EDGAR page first.")
+        return redirect("indenture:index")
+
+    prefs = services.get_user_prefs(request.user)
+    strategy = request.POST.get("strategy") or prefs["default_strategy"]
+    mode = request.POST.get("mode") or prefs["default_mode"]
+    preset_set_id = request.POST.get("preset_set") or (
+        prefs["default_preset_set_id"] if mode == "preset" else None)
+    prefer_first = request.POST.get("prefer_first") == "on"
+
+    if strategy not in services.STRATEGIES:
+        messages.error(request, f"Unknown strategy: {strategy!r}.")
+        return redirect("indenture:index")
+    if mode not in services.MODES:
+        messages.error(request, f"Unknown mode: {mode!r}.")
+        return redirect("indenture:index")
+    preset_terms = None
+    if mode == "preset":
+        preset = services.get_preset_set(request.user, preset_set_id) if preset_set_id else None
+        preset_terms = (preset or {}).get("terms") or []
+        if not preset_terms:
+            messages.error(request, "Choose a preset set with terms when running in preset mode.")
+            return redirect("indenture:index")
+
+    try:
+        exhibit = get_exhibit(cik, accession, filename)
+    except EdgarError as e:   # the message carries no CIK
+        messages.error(request, f"Could not fetch the exhibit from EDGAR: {e}")
+        return redirect("indenture:index")
+
+    meta = exhibit.metadata
+    safe_name = os.path.basename(meta["filename"])
+    ext = os.path.splitext(safe_name)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS + CONVERT_TO_PDF:
+        messages.error(request, f"Unsupported exhibit type {ext!r}.")
+        return redirect("indenture:index")
+
+    with tempfile.TemporaryDirectory(prefix="indenture-") as tmpdir:
+        tmp_path = os.path.join(tmpdir, safe_name)
+        try:
+            with open(tmp_path, "wb") as f:
+                f.write(exhibit.content)
+        except OSError as e:
+            logger.exception("Failed to write the EDGAR exhibit to temp dir")
+            messages.error(request, f"Could not stage the exhibit: {e}")
+            return redirect("indenture:index")
+
+        if ext in CONVERT_TO_PDF:
+            try:
+                tmp_path = html_to_pdf(tmp_path, tmpdir)
+            except Exception as e:
+                logger.exception("EDGAR exhibit conversion to PDF failed")
+                messages.error(request, f"Could not convert the exhibit to PDF: {e}")
+                return redirect("indenture:index")
+
+        try:
+            run = services.run_extraction(
+                file_path=tmp_path,
+                strategy=strategy,
+                mode=mode,
+                preset_terms=preset_terms,
+                prefer_first=prefer_first,
+            )
+        except (FileNotFoundError, ValueError) as e:
+            messages.error(request, str(e))
+            return redirect("indenture:index")
+        except RuntimeError as e:
+            logger.exception("Extraction dependency failure")
+            messages.error(request, f"Extraction failed: {e}. Contact the architect.")
+            return redirect("indenture:index")
+        except Exception as e:  # pragma: no cover — last-resort guard
+            logger.exception("Unexpected extraction failure")
+            messages.error(request, f"Unexpected error: {e}")
+            return redirect("indenture:index")
+
+    run_record = {
+        "filename": safe_name,
+        "source": "EDGAR",
+        "accession": meta["accession"],
+        "form": meta.get("form"),
+        "filing_date": meta["filing_date"].isoformat() if meta.get("filing_date") else None,
+        "document_type": meta.get("document_type", ""),
+        "strategy": strategy,
+        "mode": mode,
+        "preset_set_id": preset_set_id,
+        "pages_processed": run["pages_processed"],
+        "terms_found": run["terms_found"],
+        "results": run["results"],
+        "processed_at": datetime.now(timezone.utc).isoformat(),
+        "duration_ms": run["duration_ms"],
+    }
+    run_id = services.save_run(request.user, run_record)
     return redirect("indenture:history_detail", run_id=run_id)
 
 

@@ -4,9 +4,9 @@ Extracts defined terms from credit agreements, CLO indentures and ISDA agreement
 
 | | |
 |---|---|
-| Version | see `config.py` (`1.0.0`); the git tag is `v<version>` |
+| Version | see `config.py` (`1.1.0`); the git tag is `v<version>` |
 | Live site | yes: `"external": True`, pinned as `indenture@<version>` in the server allowlist |
-| Data | run history and term presets through `AppDataStore` (the `PluginData` table). Uploads are processed in a temporary folder and not kept. |
+| Data | run history and term presets through `AppDataStore` (the `PluginData` table). Uploads and EDGAR exhibits are processed in a temporary folder and not kept. |
 | Code | `core_logic/` holds file conversion, OCR, text processing, term extractors and strategies; `services.py` is the glue; `views.py` has the index, results, history, presets and CSV download |
 | Packages | pdfplumber, PyMuPDF, python-docx, pytesseract and related packages come from the **site's** `requirements.txt` |
 

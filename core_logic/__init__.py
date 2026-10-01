@@ -23,7 +23,7 @@ from .strategies import (
     PATTERNS,
 )
 from .ocr import ocr_pdf_page
-from .file_conversion import convert_docx_to_pdf
+from .file_conversion import convert_docx_to_pdf, html_to_pdf
 
 __all__ = [
     "clean_text_for_matching",
@@ -39,4 +39,5 @@ __all__ = [
     "PATTERNS",
     "ocr_pdf_page",
     "convert_docx_to_pdf",
+    "html_to_pdf",
 ]

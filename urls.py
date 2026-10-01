@@ -14,6 +14,8 @@ app_name = "indenture"
 urlpatterns = [
     path("", views.index, name="index"),
     path("extract/", views.extract, name="extract"),
+    # The site's EDGAR page POSTs cik, accession, filename here (contract v1.7.0)
+    path("edgar/", views.extract_from_edgar, name="extract_from_edgar"),
     path("download/<str:run_id>/", views.download_csv, name="download"),
     path("presets/", views.presets_list, name="presets_list"),
     path("presets/<str:set_id>/", views.presets_detail, name="presets_detail"),

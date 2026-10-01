@@ -94,6 +94,35 @@
     </form>
   </section>
 
+  <section class="card edgar-card">
+    <h2>From EDGAR</h2>
+    <p>Find an indenture (EX-4) or credit agreement (EX-10) exhibit on SEC EDGAR and run it here
+    without downloading it: <a href="{% url 'edgar_lookup' %}">open the EDGAR page</a> and use
+    "Send to indenture". The exhibit is fetched by the server, used for this run and not kept.
+    Your saved strategy and mode are used.</p>
+    <details>
+      <summary>Already have the CIK, accession number and file name?</summary>
+      <form method="post" action="{% url 'indenture:extract_from_edgar' %}" class="extract-form">
+        {% csrf_token %}
+        <div class="field">
+          <label for="edgar-cik">CIK</label>
+          <input id="edgar-cik" name="cik" inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10" required autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="edgar-accession">Accession number</label>
+          <input id="edgar-accession" name="accession" maxlength="20" required autocomplete="off" placeholder="##########-##-######">
+        </div>
+        <div class="field">
+          <label for="edgar-filename">File name</label>
+          <input id="edgar-filename" name="filename" maxlength="200" required autocomplete="off">
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn primary">Extract from EDGAR</button>
+        </div>
+      </form>
+    </details>
+  </section>
+
   <section class="card quicklinks">
     <h3>Quick links</h3>
     <ul>
